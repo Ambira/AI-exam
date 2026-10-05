@@ -1,0 +1,214 @@
+Write a Prolog program to model a family tree and family relationships: 
+a. Define facts for parent(Parent, Child), male(Person), and female(Person). 
+b. Write rules for grandparent(X, Y), sibling(X, Y), and uncle(X, Y). 
+c. Demonstrate recursive reasoning by defining a rule ancestor(X, Y). 
+d. Provide 3 test queries along with screen outputs.
+
+
+rules: 
+% ===== FACTS =====
+
+male(john).
+male(michael).
+male(robert).
+male(david).
+
+female(mary).
+female(lisa).
+female(susan).
+female(anna).
+
+parent(john, michael).
+parent(mary, michael).
+
+parent(john, lisa).
+parent(mary, lisa).
+
+parent(john, robert).
+parent(mary, robert).
+
+parent(michael, david).
+parent(susan, david).
+
+parent(michael, anna).
+parent(susan, anna).
+
+
+% ===== RULES =====
+
+% Grandparent
+grandparent(X, Y) :-
+    parent(X, Z),
+    parent(Z, Y).
+
+% Sibling
+sibling(X, Y) :-
+    parent(P, X),
+    parent(P, Y),
+    X \= Y.
+
+% Uncle
+uncle(X, Y) :-
+    male(X),
+    sibling(X, P),
+    parent(P, Y).
+
+% Recursive Ancestor
+ancestor(X, Y) :-
+    parent(X, Y).
+
+ancestor(X, Y) :-
+    parent(X, Z),
+    ancestor(Z, Y).
+
+
+
+
+% ===== TEST QUERIES =====
+
+1. Check grandparent relationship
+
+?- grandparent(john, david).
+
+true.
+
+
+2. Check sibling relationship
+
+?- sibling(michael, lisa).
+
+true.
+
+
+3. Check recursive ancestor relationship
+
+?- ancestor(john, david).
+
+true.
+
+
+
+qn 2
+Write a Prolog program to build a family relationship knowledge base: 
+a. Define facts for male/l, female/l, and parent/2. 
+b. Write rules for mother/2, father/2, sibling/2, and uncle/2. 
+c. Define a recursive rule ancestor(X, Y) to find all ancestors of a person. 
+d. Provide sample queries and their respective screen outputs.
+
+
+
+% ===== FACTS =====
+
+male(john).
+male(michael).
+male(robert).
+male(david).
+
+female(mary).
+female(lisa).
+female(susan).
+female(anna).
+
+parent(john, michael).
+parent(mary, michael).
+
+parent(john, lisa).
+parent(mary, lisa).
+
+parent(john, robert).
+parent(mary, robert).
+
+parent(michael, david).
+parent(susan, david).
+
+parent(michael, anna).
+parent(susan, anna).
+
+
+% ===== RULES =====
+
+% Mother
+mother(X, Y) :-
+    female(X),
+    parent(X, Y).
+
+% Father
+father(X, Y) :-
+    male(X),
+    parent(X, Y).
+
+% Sibling
+sibling(X, Y) :-
+    parent(P, X),
+    parent(P, Y),
+    X \= Y.
+
+% Uncle
+uncle(X, Y) :-
+    male(X),
+    sibling(X, P),
+    parent(P, Y).
+
+% Recursive Ancestor
+ancestor(X, Y) :-
+    parent(X, Y).
+
+ancestor(X, Y) :-
+    parent(X, Z),
+    ancestor(Z, Y).
+
+
+
+
+% ===== SAMPLE QUERIES =====
+
+1. Check mother relationship
+
+?- mother(mary, michael).
+
+true.
+
+
+2. Check father relationship
+
+?- father(john, michael).
+
+true.
+
+
+3. Check sibling relationship
+
+?- sibling(michael, lisa).
+
+true.
+
+
+4. Check uncle relationship
+
+?- uncle(robert, david).
+
+true.
+
+
+5. Find ancestor relationship
+
+?- ancestor(john, david).
+
+true.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
