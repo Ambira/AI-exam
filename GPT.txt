@@ -1,0 +1,1323 @@
+🧠 PART 1 — FIRST, WHAT EVEN IS PROLOG?
+
+Prolog = PROgramming in LOGic.
+
+Unlike C/Java/Python, where you usually tell the computer:
+
+“Do these steps.”
+
+In Prolog, you tell it:
+
+“These facts are true, and these relationships are true. Now reason about them.”
+
+For example:
+
+male(john).
+female(mary).
+parent(john, michael).
+
+You're saying:
+
+John is male.
+Mary is female.
+John is the parent of Michael.
+
+Then you can ask:
+
+?- parent(john, michael).
+
+Prolog answers:
+
+true.
+
+You aren't explicitly programming:
+
+IF John is parent of Michael THEN return true.
+
+The fact itself represents that knowledge.
+
+🔥 PART 2 — THE THREE THINGS YOU MUST KNOW
+
+Your entire practical basically revolves around:
+
+1. Facts
+
+Facts represent things that are known to be true.
+
+male(john).
+female(mary).
+parent(john, michael).
+Viva answer:
+
+A fact is a statement that is directly known to be true in the Prolog knowledge base.
+
+2. Rules
+
+Rules define relationships using conditions.
+
+Example:
+
+father(X, Y) :-
+    male(X),
+    parent(X, Y).
+
+Read this as:
+
+X is the father of Y if X is male and X is a parent of Y.
+
+The :- means roughly:
+
+if
+
+So:
+
+father(X,Y) :- male(X), parent(X,Y).
+
+means:
+
+father(X,Y) is true if male(X) AND parent(X,Y) are true.
+
+3. Queries
+
+Queries are questions you ask Prolog.
+
+?- father(john, michael).
+
+Prolog searches its knowledge base.
+
+If it can prove it:
+
+true.
+
+Otherwise:
+
+false.
+🚨 PART 3 — YOUR BIGGEST PROLOG VOCABULARY
+
+You should be able to answer these instantly.
+
+Term	Meaning
+Prolog	Programming in Logic
+Fact	Known true statement
+Rule	Relationship defined using conditions
+Query	Question asked to Prolog
+Predicate	Represents a relationship/property
+Atom	Constant/name such as john
+Variable	General/unknown value such as X
+Clause	Fact or rule
+Knowledge base	Collection of facts and rules
+Unification	Matching terms/assigning variables so they become compatible
+Backtracking	Going back to try another possible solution
+Recursion	A rule referring to itself
+Arity	Number of arguments of a predicate
+Goal	A condition Prolog tries to satisfy
+🧩 PART 4 — UNDERSTAND YOUR CODE
+
+Let's dissect:
+
+male(john).
+What is male?
+
+A predicate.
+
+What is john?
+
+An atom/constant.
+
+What is /1?
+
+male/1 means:
+
+predicate male has one argument.
+
+So:
+
+male(john).
+
+is male/1.
+
+Now:
+
+parent(john, michael).
+
+parent has two arguments.
+
+Therefore:
+
+parent/2
+Viva:
+
+Q: What does parent/2 mean?
+
+parent/2 means the predicate parent takes two arguments.
+
+🔠 PART 5 — WHY IS X UPPERCASE?
+
+This is VERY likely viva material.
+
+Prolog has a naming convention/syntax distinction.
+
+Variables begin with uppercase letters
+X
+Y
+Person
+Child
+Atoms normally begin lowercase
+john
+mary
+parent
+male
+female
+
+So:
+
+parent(X, Y)
+
+means:
+
+X and Y are variables.
+
+While:
+
+parent(john, michael)
+
+means:
+
+John and Michael are specific atoms.
+
+Viva trap:
+
+Q: Is john a variable?
+
+❌ No.
+
+Q: Is John a variable?
+
+Normally, yes.
+
+🧠 PART 6 — WHAT DOES THIS MEAN?
+father(X, Y) :-
+    male(X),
+    parent(X, Y).
+
+Break it apart:
+
+father(X,Y)
+
+is the head.
+
+male(X), parent(X,Y)
+
+is the body.
+
+:- separates them.
+
+So:
+
+HEAD :- BODY.
+
+means:
+
+Head is true if Body is true.
+
+🔥 PART 7 — COMMA , VS SEMICOLON ;
+
+Very likely logical viva question.
+
+Comma = AND
+father(X,Y) :-
+    male(X),
+    parent(X,Y).
+
+means:
+
+X is male AND X is parent of Y.
+
+Both must succeed.
+
+Semicolon = OR
+
+Example:
+
+parent(X,Y) :-
+    father(X,Y);
+    mother(X,Y).
+
+means:
+
+X is father of Y OR X is mother of Y.
+
+So:
+
+,  → AND
+;  → OR
+
+Remember this.
+
+🚨 PART 8 — THE SIBLING BUG IN YOUR QUESTION
+
+Your supplied rule is:
+
+sibling(X, Y) :-
+    parent(P, X),
+    parent(P, Y),
+    X = Y.
+
+This is logically problematic.
+
+Why?
+
+Because:
+
+X = Y
+
+means:
+
+X and Y must be the same person.
+
+But siblings should normally be different people.
+
+For example:
+
+Michael and Lisa
+
+should satisfy sibling.
+
+But:
+
+X = Y
+
+forces:
+
+X = Lisa
+Y = Lisa
+
+or
+
+X = Michael
+Y = Michael
+
+depending on the query.
+
+Proper sibling rule:
+sibling(X, Y) :-
+    parent(P, X),
+    parent(P, Y),
+    X \= Y.
+
+Here:
+
+\=
+
+means:
+
+X and Y are not unifiable / are different.
+
+So if examiner asks you to correct the sibling rule, say:
+
+sibling(X, Y) :-
+    parent(P, X),
+    parent(P, Y),
+    X \= Y.
+
+🔥 This is worth knowing because your question sheet itself appears to contain X = Y, which is likely an error.
+
+🧠 PART 9 — = VS \= VS is
+
+THIS is classic Prolog viva territory.
+
+=
+
+Unification.
+
+X = john.
+
+means:
+
+Make X unify with john.
+
+\=
+
+Not unifiable.
+
+X \= Y.
+
+means they cannot be unified under the current bindings.
+
+is
+
+Used for arithmetic evaluation.
+
+X is 2 + 3.
+
+Then:
+
+X = 5
+Important:
+X = 2 + 3.
+
+does NOT calculate 5.
+
+It makes X represent the term:
+
+2 + 3
+
+Whereas:
+
+X is 2 + 3.
+
+evaluates it.
+
+Viva:
+
+Q: Difference between = and is?
+
+= performs unification, whereas is evaluates an arithmetic expression and assigns the resulting value.
+
+🔁 PART 10 — WHY IS ANCESTOR RECURSIVE?
+
+Your rule:
+
+ancestor(X, Y) :-
+    parent(X, Y).
+
+ancestor(X, Y) :-
+    parent(X, Z),
+    ancestor(Z, Y).
+
+There are two cases.
+
+Base case
+ancestor(X, Y) :-
+    parent(X, Y).
+
+If X directly parents Y:
+
+X → Y
+
+then X is an ancestor of Y.
+
+Recursive case
+ancestor(X, Y) :-
+    parent(X, Z),
+    ancestor(Z, Y).
+
+Read:
+
+X is an ancestor of Y if X is parent of Z and Z is an ancestor of Y.
+
+Example:
+
+John
+ ↓
+Michael
+ ↓
+David
+
+Question:
+
+ancestor(john, david).
+
+Prolog can reason:
+
+John is parent of Michael.
+Michael is ancestor of David.
+Therefore John is ancestor of David.
+
+That's recursion.
+
+🧠 PART 11 — THE MOST IMPORTANT RECURSION QUESTION
+
+Examiner:
+
+Why can't you simply write parent?
+
+Answer:
+
+Because parent only represents a direct relationship.
+
+For example:
+
+parent(john, michael).
+parent(michael, david).
+
+John is NOT directly David's parent.
+
+But John is David's ancestor.
+
+Therefore we need recursion to follow an arbitrary number of generations.
+
+🌳 PART 12 — UNDERSTAND THE FAMILY TREE
+
+Your facts produce roughly:
+
+              John ─── Mary
+                │
+       ┌────────┼────────┐
+       ↓        ↓        ↓
+   Michael     Lisa     Robert
+       │
+       ├──────────────┐
+       ↓              ↓
+     David           Anna
+
+And:
+
+Susan ─── Michael
+   │
+   ├── David
+   └── Anna
+
+So Michael and Lisa are siblings because:
+
+John → Michael
+John → Lisa
+
+Robert is also their sibling.
+
+Michael is father of David and Anna.
+
+Susan is mother of David and Anna.
+
+👩 MOTHER RULE
+mother(X,Y) :-
+    female(X),
+    parent(X,Y).
+
+Meaning:
+
+X is the mother of Y if X is female AND X is Y's parent.
+
+Query:
+
+?- mother(mary, michael).
+
+Prolog checks:
+
+female(mary)       ✓
+parent(mary,michael) ✓
+
+Therefore:
+
+true.
+👨 FATHER RULE
+father(X,Y) :-
+    male(X),
+    parent(X,Y).
+
+Same logic.
+
+?- father(john,michael).
+
+Checks:
+
+male(john)             ✓
+parent(john,michael)   ✓
+
+Therefore:
+
+true.
+👴 GRANDPARENT
+grandparent(X,Y) :-
+    parent(X,Z),
+    parent(Z,Y).
+
+The key is Z.
+
+It represents the middle generation.
+
+Example:
+
+John → Michael → David
+
+For:
+
+grandparent(john,david).
+
+Prolog finds:
+
+parent(john, michael)
+parent(michael, david)
+
+Therefore:
+
+true.
+Viva:
+
+Q: Why do we need Z?
+
+Z represents the intermediate person between X and Y.
+
+👨‍🦱 UNCLE
+
+Your rule:
+
+uncle(X,Y) :-
+    male(X),
+    sibling(X,P),
+    parent(P,Y).
+
+Read it:
+
+X is uncle of Y if X is male, X is sibling of P, and P is parent of Y.
+
+Example:
+
+Robert
+   │
+ sibling of
+   ↓
+Michael
+   │
+ parent of
+   ↓
+David
+
+Therefore:
+
+Robert is David's uncle.
+
+Query:
+
+?- uncle(robert,david).
+
+returns:
+
+true.
+🔥 PART 13 — WHAT DOES PROLOG ACTUALLY DO?
+
+Suppose:
+
+?- uncle(robert, david).
+
+Prolog tries to prove:
+
+uncle(robert,david)
+
+Rule:
+
+uncle(X,Y) :-
+    male(X),
+    sibling(X,P),
+    parent(P,Y).
+
+It substitutes:
+
+X = robert
+Y = david
+
+Now it needs:
+
+male(robert)
+
+✓
+
+Then:
+
+sibling(robert,P)
+
+It searches for Robert's sibling.
+
+It finds:
+
+P = michael
+
+Then checks:
+
+parent(michael,david)
+
+✓
+
+Therefore:
+
+true.
+
+That process is logical inference.
+
+🔙 PART 14 — BACKTRACKING
+
+This is VERY important.
+
+Suppose:
+
+parent(john, michael).
+parent(john, lisa).
+parent(john, robert).
+
+Ask:
+
+?- parent(john, X).
+
+Prolog doesn't just have one answer.
+
+It can give:
+
+X = michael
+
+Press:
+
+;
+
+and it backtracks:
+
+X = lisa
+
+Again:
+
+X = robert
+
+Again:
+
+false.
+
+This is backtracking.
+
+Viva answer:
+
+Backtracking is Prolog's mechanism of returning to a previous choice point and trying another possible solution when the current path fails or when the user requests more solutions.
+
+🧠 PART 15 — WHAT IS UNIFICATION?
+
+Extremely important.
+
+Suppose:
+
+parent(john, michael).
+
+Query:
+
+?- parent(john, X).
+
+Prolog tries to match:
+
+parent(john, X)
+
+with:
+
+parent(john, michael)
+
+It discovers:
+
+X = michael
+
+That matching process is unification.
+
+Simple viva answer:
+
+Unification is the process of matching two Prolog terms by finding suitable variable bindings.
+
+🧪 PART 16 — VARIABLES CAN BE QUERIED
+
+Given:
+
+male(john).
+male(michael).
+male(robert).
+male(david).
+
+Query:
+
+?- male(X).
+
+Prolog may return:
+
+X = john ;
+X = michael ;
+X = robert ;
+X = david ;
+false.
+
+Meaning:
+
+Find every X for which male(X) is true.
+
+😈 PART 17 — STRICT EXTERNAL MAY ASK THESE
+
+I'm giving you actual viva-style questions, not just textbook definitions.
+
+Basic
+Q1. What is Prolog?
+
+Prolog is a declarative logic programming language based on facts, rules, and logical inference.
+
+Q2. What does Prolog stand for?
+
+Programming in Logic.
+
+Q3. What are the main components of a Prolog program?
+
+Facts, rules, and queries.
+
+Q4. What is a fact?
+
+A fact is a statement directly asserted as true in the knowledge base.
+
+Q5. What is a rule?
+
+A rule defines a relationship that is true when its conditions are satisfied.
+
+Q6. What is a query?
+
+A query is a question asked to the Prolog knowledge base.
+
+🧠 Syntax Questions
+Q7. Why does every statement end with .?
+
+The period terminates a Prolog clause or query.
+
+Q8. What does :- mean?
+
+It means “if” or “is true when.”
+
+Q9. What does comma mean?
+
+Logical AND.
+
+Q10. What does semicolon mean?
+
+Logical OR.
+
+Q11. Why are variables uppercase?
+
+Prolog syntax identifies variables by starting them with an uppercase letter or underscore.
+
+Q12. Why are predicates usually lowercase?
+
+Lowercase identifiers are used for atoms and predicate names.
+
+🧮 Predicate Questions
+Q13. What is parent/2?
+
+A predicate named parent with arity 2.
+
+Q14. What is arity?
+
+The number of arguments a predicate takes.
+
+Q15. What is male/1?
+
+A predicate named male with one argument.
+
+Q16. What is a compound term?
+
+Something like:
+
+parent(john,michael)
+
+It has:
+
+Functor = parent
+Arguments = john, michael
+🔥 LOGIC QUESTIONS
+Q17. What is unification?
+
+Matching terms by finding variable bindings that make them compatible.
+
+Q18. What is backtracking?
+
+Going back to previous choices to search for alternative solutions.
+
+Q19. What is recursion?
+
+A rule calling itself directly or indirectly.
+
+Q20. Why use recursion in ancestor?
+
+Because ancestor relationships can span multiple generations.
+
+Q21. What is the base case of ancestor?
+ancestor(X,Y) :-
+    parent(X,Y).
+Q22. What is the recursive case?
+ancestor(X,Y) :-
+    parent(X,Z),
+    ancestor(Z,Y).
+💀 TRICK QUESTIONS
+Q23. What's wrong with this?
+sibling(X,Y) :-
+    parent(P,X),
+    parent(P,Y),
+    X = Y.
+
+Answer:
+
+X = Y forces both people to be the same person, which contradicts the usual definition of siblings. X \= Y should normally be used instead.
+
+🔥 This answer will make you look like you actually understand the program rather than memorized it.
+
+Q24. What happens if I remove X = Y?
+
+Then:
+
+sibling(X,Y) :-
+    parent(P,X),
+    parent(P,Y).
+
+will also allow:
+
+sibling(michael,michael)
+
+because Michael and Michael have the same parent.
+
+So you need:
+
+X \= Y
+
+to prevent a person from being their own sibling.
+
+🤯 Q25. What is the difference between = and \=?
+
+= attempts unification, while \= succeeds when the two terms cannot be unified.
+
+🤯 Q26. What is the difference between = and is?
+
+= performs unification, while is evaluates arithmetic expressions.
+
+Example:
+
+X = 2 + 3.
+
+does not calculate.
+
+But:
+
+X is 2 + 3.
+
+gives:
+
+X = 5.
+💀 Q27. What happens if a query is false?
+
+Example:
+
+?- father(mary,michael).
+
+Mary isn't male.
+
+So:
+
+false.
+
+Prolog couldn't prove the query.
+
+💀 Q28. Does false mean the opposite is proven?
+
+NO.
+
+It means Prolog could not prove the queried goal from the available knowledge/rules.
+
+That's a subtle logical distinction.
+
+🧠 Q29. Is Prolog procedural or declarative?
+
+Prolog is primarily a declarative programming language.
+
+You describe:
+
+what is true
+
+rather than explicitly describing:
+
+how to perform each step.
+
+Q30. How does Prolog find answers?
+
+It uses logical inference, unification, searching, and backtracking.
+
+🌳 FAMILY-TREE QUESTIONS THEY CAN THROW AT YOU
+
+Given your facts:
+
+parent(john,michael).
+parent(mary,michael).
+
+parent(john,lisa).
+parent(mary,lisa).
+
+parent(john,robert).
+parent(mary,robert).
+
+parent(michael,david).
+parent(susan,david).
+
+parent(michael,anna).
+parent(susan,anna).
+
+They can ask:
+
+Who are Michael's parents?
+?- parent(X,michael).
+
+Answers:
+
+X = john ;
+X = mary.
+Who are John's children?
+?- parent(john,X).
+
+Answers:
+
+X = michael ;
+X = lisa ;
+X = robert.
+Is John David's grandparent?
+?- grandparent(john,david).
+true.
+Is John David's direct parent?
+?- parent(john,david).
+false.
+
+That's a GREAT distinction.
+
+John is David's grandparent, not direct parent.
+
+Is Michael David's father?
+?- father(michael,david).
+true.
+Is Susan David's mother?
+?- mother(susan,david).
+true.
+🧠 QUESTIONS ABOUT THE TWO PROGRAMS
+
+Your examiner might ask:
+
+"What is the difference between Question 1 and Question 2?"
+
+Answer:
+
+Question 1 focuses on grandparent, sibling, uncle, and recursive ancestor relationships. Question 2 additionally defines mother and father relationships using gender and parent facts.
+
+"Which part is common between both?"
+
+The male, female, parent facts and the recursive ancestor relationship are common. The relationship rules differ.
+
+"Why don't you define grandparent as a fact?"
+
+Because it can be derived from existing parent relationships.
+
+Instead of writing:
+
+grandparent(john,david).
+
+we can infer it:
+
+grandparent(X,Y) :-
+    parent(X,Z),
+    parent(Z,Y).
+
+This avoids redundant information.
+
+🔥 ANOTHER LOGICAL QUESTION
+
+Suppose:
+
+male(john).
+parent(john,michael).
+
+and:
+
+father(X,Y) :-
+    male(X),
+    parent(X,Y).
+
+Ask:
+
+?- father(john,michael).
+
+Prolog essentially asks:
+
+Is male(john) true?
+        ↓
+      YES
+
+Is parent(john,michael) true?
+        ↓
+      YES
+
+Therefore father(john,michael)
+        ↓
+      TRUE
+
+This is logical inference.
+
+🧠 WHAT IS A GOAL?
+
+Suppose:
+
+father(X,Y) :-
+    male(X),
+    parent(X,Y).
+
+When Prolog tries:
+
+?- father(john,michael).
+
+it needs to prove several goals:
+
+male(john)
+parent(john,michael)
+
+Each condition that Prolog tries to satisfy is a goal.
+
+🧩 WHAT IS A CLAUSE?
+
+Both:
+
+male(john).
+
+and:
+
+father(X,Y) :-
+    male(X),
+    parent(X,Y).
+
+are clauses.
+
+A clause can be:
+
+a fact
+or a rule
+
+So if they ask:
+
+What is a clause?
+
+Say:
+
+A clause is a Prolog statement that is either a fact or a rule.
+
+⚠️ ANOTHER TRAP: ORDER MATTERS
+
+Consider:
+
+ancestor(X,Y) :-
+    parent(X,Y).
+
+ancestor(X,Y) :-
+    parent(X,Z),
+    ancestor(Z,Y).
+
+The first rule is the base case.
+
+The second is recursive.
+
+If recursion is poorly designed, Prolog can get into infinite searching.
+
+So if asked:
+
+Why do we need a base case?
+
+Answer:
+
+The base case terminates the recursive reasoning when a direct parent relationship is found.
+
+🧠 "WHY DOES PROLOG USE RECURSION?"
+
+Don't just say:
+
+Because ancestor is recursive.
+
+Say:
+
+Because the number of generations between two people is not fixed. Recursion allows Prolog to repeatedly follow parent relationships until it reaches the required person.
+
+🔥 Much better viva answer.
+
+💻 HOW TO RUN IT
+
+If using SWI-Prolog, your workflow is basically:
+
+Create:
+
+family.pl
+
+Put the program inside.
+
+Then load it:
+
+?- [family].
+
+or:
+
+?- consult('family.pl').
+
+Then:
+
+?- father(john,michael).
+🧪 EXPECT THESE OUTPUTS
+
+With the corrected sibling rule:
+
+sibling(X,Y) :-
+    parent(P,X),
+    parent(P,Y),
+    X \= Y.
+
+You can demonstrate:
+
+?- father(john,michael).
+true.
+
+?- mother(mary,michael).
+true.
+
+?- grandparent(john,david).
+true.
+
+?- sibling(michael,lisa).
+true.
+
+?- uncle(robert,david).
+true.
+
+?- ancestor(john,david).
+true.
+
+For multiple answers:
+
+?- parent(john,X).
+X = michael ;
+X = lisa ;
+X = robert ;
+false.
+🚨 YOUR "3 TEST QUERIES" VIVA
+
+If they say:
+
+"Explain one of your test queries."
+
+Don't just say true.
+
+For:
+
+?- ancestor(john,david).
+
+Say:
+
+The query asks whether John is an ancestor of David. Prolog first checks whether John is directly David's parent. Since that fails, it uses the recursive rule. John is parent of Michael, and Michael is parent of David, so the recursive rule succeeds and Prolog returns true.
+
+THAT is the level of explanation you want.
+
+🧠 20-SECOND EMERGENCY CHEAT SHEET
+
+If your brain completely dies in front of the external, remember this:
+
+Prolog
+↓
+Programming in Logic
+
+FACT
+↓
+Something known to be true
+
+RULE
+↓
+Something true IF conditions are true
+
+QUERY
+↓
+Question to the knowledge base
+
+:- 
+↓
+IF
+
+,
+↓
+AND
+
+;
+↓
+OR
+
+X, Y
+↓
+Variables
+
+john, mary
+↓
+Atoms/constants
+
+parent/2
+↓
+Predicate + arity
+
+=
+↓
+Unification
+
+\=
+↓
+Not unifiable
+
+is
+↓
+Arithmetic evaluation
+
+Recursion
+↓
+Rule calls itself
+
+Backtracking
+↓
+Try another possible solution
+
+Unification
+↓
+Match terms / bind variables
+
+ancestor
+↓
+Needs recursion because generations aren't fixed
+💀 THE 15 QUESTIONS I'D MOST EXPECT FROM A STRICT EXTERNAL
+
+If you only have limited time, memorize these answers first:
+
+What is Prolog?
+→ Declarative logic programming language based on facts, rules and queries.
+What does Prolog stand for?
+→ Programming in Logic.
+What is a fact?
+→ A statement directly known to be true.
+What is a rule?
+→ A statement defining a relationship through conditions.
+What is a query?
+→ A question asked to the knowledge base.
+What is parent/2?
+→ Parent predicate with arity two.
+Why uppercase X?
+→ Variables begin with uppercase letters or underscore.
+What does :- mean?
+→ If / is true when.
+What does comma mean?
+→ AND.
+What is unification?
+→ Matching terms by finding suitable variable bindings.
+What is backtracking?
+→ Returning to previous choices to find alternative solutions.
+Why is ancestor recursive?
+→ Because ancestors can exist across an arbitrary number of generations.
+Difference between = and is?
+→ = unifies; is evaluates arithmetic.
+What's wrong with X = Y in sibling?
+→ It forces siblings to be the same person; normally use X \= Y.
+How does uncle(robert,david) become true?
+→ Robert is male, Robert is Michael's sibling, and Michael is David's parent.
+🧨 AND ONE THING I REALLY WANT YOU TO DO
+
+Do not memorize the code line-by-line.
+
+For the viva, learn to mentally translate:
+
+uncle(X,Y) :-
+    male(X),
+    sibling(X,P),
+    parent(P,Y).
+
+into English:
+
+X is uncle of Y IF X is male AND X is sibling of P AND P is parent of Y.
+
+If you can do that for every rule, you can survive when the external changes the query, changes the names, asks you to modify a rule, or gives you a new relationship.
+
+https://chatgpt.com/share/6ac44c49-0148-83ec-99da-ee822163e982

@@ -1,0 +1,123 @@
+AI Practical Exam — VIVA Prep (Logical/Why Questions, All Chapters)
+
+A strict viva doesn't ask "define X" — it asks "why does X work this way," "what if you changed this," "trace through this." These are exactly that style. Read each answer out loud once before you go in.
+
+Prolog (your actual practical topic — expect the most questions here)
+
+Q: What paradigm is Prolog — how is it different from C/Python/Java? A: Prolog is a declarative, logic-programming language. You don't tell it how to compute something step-by-step (imperative); you state facts and rules about what's true, and Prolog figures out how to answer queries using logical inference (resolution + unification), similar to how you proved FOPL statements by hand.
+
+Q: What is backtracking, and why does Prolog need it? A: When a goal fails (or you ask for more solutions), Prolog automatically rewinds to the last choice point and tries the next alternative. It needs this because a query may be satisfiable in multiple ways (e.g., multiple shared parents for sibling), and Prolog must systematically explore all of them rather than just stopping at the first guess.
+
+Q: What is a choice point? A: A point in execution where more than one clause (fact/rule) could match the current goal — Prolog remembers this point so it can return to it later during backtracking.
+
+Q: What does the cut (!) operator do, and why would you use it? A: ! commits Prolog to the choices made so far in the current clause, preventing backtracking past that point. It's used to stop unwanted extra solutions or to improve efficiency by telling Prolog "don't bother looking for alternatives here."
+
+Q: Why does ancestor(X,Y) :- parent(X,Y). come BEFORE the recursive clause? Does order matter? A: Order affects the sequence in which solutions are found (Prolog tries clauses top-to-bottom), but not correctness here — both clauses would eventually be tried either way. Convention puts the base case first for readability and typically for slightly more efficient/natural solution ordering.
+
+Q: What would happen if you queried ancestor(X, Y) with BOTH variables unbound? A: Prolog would enumerate every valid (X,Y) ancestor pair in the database, one at a time via backtracking — starting from the first fact/rule match and working through all combinations.
+
+Q: What's the Closed World Assumption, and how does it relate to \+ (negation as failure)? A: Prolog assumes anything it cannot prove true is false. \+ Goal succeeds if Goal cannot be proven — this isn't true logical negation, it's "negation as failure," which can behave unexpectedly with unbound variables or incomplete knowledge bases.
+
+Q: Is your sibling rule symmetric? I.e., does sibling(michael,lisa) and sibling(lisa,michael) both hold? A: Yes — since the rule just needs a shared parent P for both X and Y, swapping X and Y still finds the same P, so both queries succeed.
+
+Q: What's the time/space complexity concern with deep recursion in Prolog, e.g., a family tree with 50 generations? A: Each recursive call adds a stack frame; very deep recursion can cause a stack overflow or just be slow, since Prolog explores depth-first without memoization by default — unlike iterative loops in C, which use constant stack space.
+
+Q: How would you check if two people are NOT related (no ancestor path either way)? A: unrelated(X,Y) :- \+ ancestor(X,Y), \+ ancestor(Y,X). — using negation as failure on both directions.
+
+Chapter 1: Agents & Foundations
+
+Q: Why is "acting rationally" considered a better definition of AI than "acting humanly" (Turing Test)? A: Humans aren't always rational — we make biased, emotional, or illogical decisions. An AI designed to mimic human behavior would also inherit those flaws. "Acting rationally" instead targets the mathematically best possible decision given available information, which is a higher and more consistent bar — this is why the rational agent approach became the modern standard in AI, not just human-mimicry.
+
+Q: Can a simple reflex agent ever behave rationally in a complex environment? Why or why not? A: Only in a fully observable environment where the correct action truly depends on nothing but the current percept. In any environment requiring memory of past events or planning (partially observable, sequential), a simple reflex agent cannot act rationally since it has no way to account for history or future consequences.
+
+Q: Give a scenario where a utility-based agent and a goal-based agent would choose DIFFERENT actions. A: If there are multiple ways to reach a goal with different costs/risks (e.g., two routes to a destination — one fast but risky, one slow but safe), a goal-based agent just needs any path to the goal and might pick either; a utility-based agent explicitly weighs trade-offs (speed vs safety) and would consistently pick the one maximizing overall utility.
+
+Q: Is a thermostat an "intelligent" agent? Justify. A: By the strict definition (perceives via sensors, acts via actuators, maps percepts to actions), yes, technically an agent — but not "intelligent" in a meaningful sense, since it has no learning, reasoning, or adaptability; it's a simple reflex agent with a fixed, trivial rule.
+
+Q: Why can't a CSP solver, as-is, handle a genuinely dynamic real-world problem like live traffic routing? A: CSP assumes a static, fully defined set of variables/domains/constraints known in advance. A dynamic problem has constraints that change mid-solve (traffic conditions shifting), so a pure CSP solver would need to be re-run from scratch or extended with online/incremental techniques — it isn't built for continuously changing input.
+
+Q: If an environment is "episodic," does that mean the agent has no memory at all? A: Not quite — it means each decision/episode doesn't depend on previous episodes, not that the agent literally has zero memory. The agent could still store logs, but the environment's structure means past episodes don't affect what's optimal in the current one (e.g., a single round of image classification, unaffected by the last image seen).
+
+Chapter 2: Search
+
+Q: Why is Greedy Best-First Search not optimal, even though it always picks the state that LOOKS closest to the goal? A: Because it only considers h(n) — the estimated remaining cost — and completely ignores g(n), the cost already spent to get there. It can be lured down a path that looks locally promising (low h) but has a huge cumulative cost, while ignoring a cheaper overall path that initially looked less promising.
+
+Q: If h(n) = 0 for all n, what does A reduce to?* A: It reduces to Uniform Cost Search, since f(n) = g(n) + 0 = g(n), meaning the search is guided purely by actual path cost with no heuristic guidance at all.
+
+Q: Can a heuristic be admissible but still perform badly in practice? Give an intuition. A: Yes — an admissible heuristic (like h(n)=0, which is trivially admissible) guarantees optimality but can be extremely uninformative, causing A* to explore almost as many nodes as uninformed search. Admissibility guarantees correctness, not efficiency; a better heuristic is one that's admissible AND close to the true cost.
+
+Q: Why does Hill Climbing have no way to recover from a local maximum, unlike A?* A: Hill Climbing only keeps track of the current state and greedily moves to better neighbors — it has no memory of alternative paths or a frontier of unexplored options, so once every neighbor looks worse, it has nothing left to fall back on. A* maintains an entire frontier (priority queue) of alternative paths it hasn't yet explored, so it can always backtrack to a different branch.
+
+Q: Why does Alpha-Beta Pruning never change the final minimax decision, even though it skips exploring parts of the tree? A: Because it only prunes branches that are provably irrelevant — ones where a rational opponent would never allow that branch to be reached in the first place (since α ≥ β proves the branch is worse for them than an already-found alternative). It never discards a branch that could still affect the outcome, so the final value computed at the root is mathematically identical to full minimax.
+
+Q: Does the order in which you explore children affect how MUCH alpha-beta pruning happens? A: Yes — exploring the best move first at each level causes the most pruning (best-case efficiency close to O(b^(d/2)) instead of O(b^d)); a poor move-ordering can result in little to no pruning at all, making it behave like plain minimax.
+
+Q: Why is BFS guaranteed to find the shortest path in an unweighted graph, but not in a weighted one? A: BFS explores level by level, so the first time it reaches the goal, it has used the fewest possible edges — which equals the shortest path ONLY when every edge costs the same (unweighted). In a weighted graph, a path with fewer edges can still have a higher total cost than a path with more, cheaper edges — so BFS's level-order guarantee breaks down; you'd need UCS instead.
+
+Q: Can IDS ever be slower in practice than plain BFS, given it repeats work? A: In terms of time, IDS does redundant work at shallow levels on every iteration, so asymptotically it's still O(b^d) like BFS (the repeated work is a constant-factor overhead, not an order-of-growth increase) — but in terms of memory, IDS is dramatically better (O(bd) vs O(b^d) for BFS), which is the whole reason it's used despite the repeated computation.
+
+Chapter 3: Logic & Knowledge Representation
+
+Q: Why can't you just drop an existential quantifier (∃) the same way you drop a universal quantifier (∀) during CNF conversion? A: Dropping ∀ is valid because a universally quantified statement is implicitly true for ALL values, so the variable can be left free (any substitution makes it true). But ∃x P(x) only claims some value makes it true — simply dropping the quantifier and leaving x free would wrongly claim it's true for ALL x. Skolemization replaces it with a specific witness (constant or function) that stands in for "the value that makes it true," preserving the original meaning.
+
+Q: Why does resolution require clauses to be in CNF form specifically, rather than working on them directly? A: Resolution is a rule that operates on disjunctions of literals (clauses) — it looks for a literal and its negation across two clauses to cancel them out. Arbitrary logical formulas with mixed ∧/∨/→ don't have this uniform structure, so converting everything to CNF (a conjunction of such disjunctive clauses) gives resolution a consistent, mechanical form to operate on.
+
+Q: What does it mean if resolution never reaches the empty clause, no matter how long you try? A: It means the negated goal is consistent with the premises — i.e., the original goal does NOT logically follow from the premises (it can't be proven true by resolution refutation). Note resolution is only guaranteed to terminate with "no" for propositional logic — for FOPL it can in theory run forever if the goal is actually false.
+
+Q: In resolution, why do we negate the goal instead of just trying to derive it directly? A: This is "proof by contradiction" — refutation resolution. By negating the goal and adding it to the premises, if we can derive a contradiction (empty clause), it proves the premises combined with the goal's negation are inconsistent, which logically means the premises alone must entail the original (non-negated) goal.
+
+Q: Why does a semantic network's inheritance mechanism sometimes produce WRONG conclusions? A: Because inheritance assumes all properties of a general class apply to every instance without exception — but real-world categories often have exceptions (e.g., "birds fly" is inherited by penguins too, even though penguins can't fly). This is the classic "exception handling" problem in semantic networks, usually solved by allowing more specific nodes to override inherited properties.
+
+Q: What's the key difference between how a Frame and a Semantic Network represent the SAME knowledge? A: A semantic network emphasizes the relationships/links between concepts as the primary structure (graph-based, good for showing how things connect). A frame emphasizes the attributes of a single concept bundled together (object-based, good for showing everything known about one entity at a glance). They can represent the same facts, just organized differently.
+
+Q: Forward chaining vs backward chaining — which is more efficient when there are many rules but a very specific question to answer? A: Backward chaining is more efficient here, since it only explores rules relevant to proving the specific goal, ignoring irrelevant facts/rules entirely. Forward chaining would derive many facts that have nothing to do with the question, wasting effort — forward chaining is better suited when you want to derive ALL possible conclusions from a given fact set, not just answer one specific query.
+
+Chapter 4: Uncertainty & Probability
+
+Q: In the mammogram example, why is P(Cancer|Positive) so low (10%) even though the test is 90% accurate? A: Because the base rate of cancer is very low (1%), so even a small false-positive rate (8%) applied to the huge population WITHOUT cancer produces far more false positives in absolute terms than true positives from the tiny population WITH cancer. This is the classic "base rate fallacy" — people intuitively overestimate P(Cancer|Positive) by ignoring how rare the condition is to begin with.
+
+Q: Why do we need the denominator P(E) in Bayes' Theorem — what does it actually represent? A: It's a normalizing constant — the total probability of observing the evidence E, considering ALL ways it could occur (both when H is true and when H is false). Without dividing by it, the numerator alone wouldn't be a valid probability (it wouldn't sum to 1 across all hypotheses).
+
+Q: In a Bayesian Network, why do we need to SUM over all combinations of intermediate variables instead of just picking the most likely one? A: Because we want the TOTAL probability of D given A, accounting for every possible way the evidence could propagate through the network — not just the single most probable path. Marginalization (summing over all cases) gives the mathematically correct overall probability; picking just the most likely intermediate case would give a biased, incomplete answer.
+
+Q: What does conditional independence mean in a Bayesian Network, and why does it simplify computation? A: Two variables are conditionally independent given a third if knowing the third makes them no longer informative about each other. In a Bayes net, child nodes depend only on their direct parents — so instead of needing the full joint probability table over ALL variables (which grows exponentially), we only need small, local conditional probability tables, which Bayesian networks exploit for compact, tractable representation.
+
+Q: Why is fuzzy logic better suited than classical binary logic for something like a washing machine's water-level sensor? A: Real-world quantities like water level, temperature, or "dirtiness" exist on a continuum — binary logic forces an artificial sharp cutoff (e.g., "full" vs "not full") that doesn't reflect reality well, causing abrupt behavior changes at the boundary. Fuzzy logic allows smooth, graded membership (70% full, 30% empty) and smooth rule blending, producing more natural, human-like control decisions.
+
+Chapter 5: Machine Learning
+
+Q: Why is the "naive" independence assumption in Naive Bayes often wrong in practice, yet the classifier still performs well? A: Features are rarely truly independent (e.g., in spam email, "free" and "win" often co-occur) — so the assumption is technically false. However, Naive Bayes only needs to rank classes correctly (which class has higher probability), not get the exact probability values right — the independence assumption's errors often affect all classes similarly, so the relative ranking (and thus the classification decision) often stays correct anyway.
+
+Q: Why does mutation matter in a Genetic Algorithm if crossover already creates new combinations? A: Crossover can only recombine genes that already EXIST somewhere in the current population — it can't introduce a completely new gene value that no individual currently has. Mutation is the only operator that injects entirely new genetic material, preventing the population from getting stuck with limited diversity and helping escape local optima that crossover alone can't escape.
+
+Q: What happens to a Genetic Algorithm if the mutation rate is set too high? A: The search becomes essentially random — good solutions found by selection and crossover get constantly disrupted by excessive random changes, preventing the population from converging on a good solution. It's effectively random search at that point, losing the benefit of guided evolution.
+
+Q: Why can't a single-layer perceptron solve the XOR problem? A: XOR is NOT linearly separable — there's no single straight line that can separate the (0,0)/(1,1) outputs from the (0,1)/(1,0) outputs in input space. A single-layer perceptron can only draw one linear decision boundary, so it mathematically cannot represent XOR, no matter how it's trained. This is exactly why multi-layer perceptrons (with hidden layers) were needed.
+
+Q: Why is the sigmoid function's differentiability so critical to backpropagation specifically? A: Backpropagation computes weight updates using gradients (via the chain rule) that measure how much a small change in a weight affects the final error — this calculation mathematically requires the activation function to be differentiable at every point. A non-differentiable function (like a hard step function) would make it impossible to compute a meaningful gradient, breaking the entire backprop update mechanism.
+
+Q: What's the practical difference between model-free and model-based reinforcement learning, performance-wise? A: Model-based RL first learns how the environment behaves (transition/reward model), then can PLAN ahead using that model — often more sample-efficient since it can "imagine" outcomes without needing to actually try them. Model-free RL must learn purely through direct trial-and-error, often needing far more real interactions with the environment to converge, but avoids the risk of errors from an inaccurate learned model.
+
+Chapter 6: NLP
+
+Q: Give an example sentence that's syntactically valid but semantically meaningless, and explain why this distinction matters. A: "Colorless green ideas sleep furiously" — it follows correct English grammar (syntactically valid parse tree: adjective-adjective-noun-verb-adverb), but it's meaningless (ideas can't be literally colorless/green, nor can they sleep). This shows syntax and semantics are genuinely separate processing stages — a sentence can pass one check and fail the other.
+
+Q: Why can't semantic analysis alone resolve pragmatic ambiguity? A: Semantic analysis only determines the literal, context-free meaning of a sentence's words and structure. Pragmatic meaning depends on situational context, speaker intent, and shared real-world knowledge — none of which is encoded in the sentence's literal semantics alone. "It's cold in here" semantically just states a temperature fact, but pragmatically might mean "please close the window" — only context reveals that.
+
+Chapter 7: Expert Systems
+
+Q: Why can an expert system sometimes give confidently wrong advice, even with a correctly built knowledge base? A: Because its reasoning is only as good as the rules explicitly encoded — it has no genuine understanding or common sense outside its programmed domain. If a real-world case falls outside the rules' assumptions or involves an edge case the knowledge engineer didn't anticipate, the system will still confidently apply its rules and produce an answer, without recognizing its own knowledge gap (unlike a human expert, who might say "I'm not sure").
+
+Q: Why is the Explanation Module considered as important as the Inference Engine itself? A: Especially in critical domains like medical diagnosis, users (doctors, patients) need to trust and verify a recommendation, not just receive a black-box answer. The Explanation Module shows the chain of reasoning/rules that led to the conclusion, allowing human experts to catch errors, build trust, and comply with accountability requirements — without it, the system's advice is much harder to validate or trust.
+
+Chapter 8: Robotics & Machine Vision
+
+Q: Why is machine vision considered harder than simply "taking a photo and reading pixel values"? A: Interpreting an image requires extracting meaningful structure (edges, objects, depth) from raw pixel data, which is highly ambiguous — the same object can look different under different lighting, angles, occlusion, or scale. Unlike simple pixel reading, true machine vision must solve an "inverse problem": reconstructing meaning (what's actually there) from 2D projections of a 3D world, which is inherently under-determined without additional assumptions or learned priors.
+
+General cross-chapter "gotcha" questions
+
+Q: What's the common mathematical thread between Minimax, A, and Resolution?* A: All three are search algorithms exploring a state/solution space systematically — Minimax searches a game tree for the best move, A* searches a graph for the cheapest path, and Resolution searches a space of logical clauses for a contradiction. They differ in what they're searching for and how they prune the space, but share the same underlying "explore, evaluate, prune/backtrack" structure.
+
+Q: Why do both Hill Climbing AND Greedy Best-First Search share the same core weakness? A: Both are purely greedy — they make locally optimal choices (best neighbor / lowest h(n)) without any lookahead or memory of alternative paths, so both can get trapped by a choice that looks good now but leads to a worse overall outcome. Neither maintains a frontier of alternatives to fall back on.
+
+Q: If you had to explain "rationality" as the single unifying theme of this whole course, how would you do it? A: Nearly every topic is really about finding the best decision/action under some constraint: Hill Climbing/A* find the best path given cost constraints; Minimax/Alpha-Beta find the best move given an adversary; Bayesian reasoning finds the best belief given uncertain evidence; GA/RL find the best policy given a fitness/reward signal; even Resolution finds the best (smallest, valid) proof given logical constraints. The whole field is fundamentally about rational decision-making under different kinds of constraints and uncertainty.
